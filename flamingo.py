@@ -324,7 +324,7 @@ class FlamingoAPI:
     @classmethod
     def _post(cls, endpoint, data=None):
         url = f"{cls.API}{endpoint}"
-        response = requests.post(url=url, data=data, headers=cls._headers(url=url))
+        response = requests.post(url=url, json=data, headers=cls._headers(url=url))
         response.raise_for_status()
         return response.json()
 
