@@ -274,7 +274,7 @@ class FlamingoAPI:
 
     @classmethod
     def unset_envs(cls, app_id, keys):
-        return cls._post(endpoint=f'/apps/{app_id}/vars', data=keys)
+        return cls._delete(endpoint=f'/apps/{app_id}/vars', data=keys)
 
     @classmethod
     def apply_app(cls, app_id):
@@ -331,6 +331,6 @@ class FlamingoAPI:
     @classmethod
     def _delete(cls, endpoint, data=None):
         url = f"{cls.API}{endpoint}"
-        response = requests.delete(url=url, data=data, headers=cls._headers(url=url))
+        response = requests.delete(url=url, json=data, headers=cls._headers(url=url))
         response.raise_for_status()
         return response.json()
