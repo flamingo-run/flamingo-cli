@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 import click
 import requests
@@ -118,6 +119,67 @@ def app_apply(application):
     data = FlamingoAPI.apply_app(app_id=app_info['id'])
     _success(f"Successfully applied {app_info['name']}-{app_info['environment']['name']}'s configuration.")
     click.echo(f"Cloud Build trigger {data['trigger_id']} has been updated")
+
+
+@cli.group()
+def buildpack():
+    """Manages build packs"""
+
+
+@app.command("list")
+def buildpack_list():
+    """List buildpacks."""
+    bp_info = {}
+    for bp in FlamingoAPI.list_buildpacks():
+        name = bp['name']
+        bp_info[f"{name}"] = [name, bp['runtime'], bp['target']]
+
+    sorted_info = dict(sorted(bp_info.items())).values()
+    click.echo(tabulate(sorted_info, headers=["Name", "Runtime", "Target"], tablefmt=TABLE_STYLE))
+
+
+@app.command("info")
+@click.option('--name', '-n', type=str, required=True, help="Build pack name")
+def buildpack_info(name):
+    """Detail buildpack."""
+
+    bp_info = _parse_buildpack_name(name=name)
+    if not bp_info:
+        return
+
+    _describe([
+        ('NAME', bp_info['name']),
+        ('RUNTIME', bp_info['runtime']),
+        ('TARGET', bp_info['target']),
+
+    ])
+
+    build_commands = bp_info['post_build_commands']
+    _block(header='POST BUILD COMMANDS', content='\n'.join(build_commands))
+
+    build_args = bp_info['build_args']
+    db_info = [
+        f"{key}: {value}"
+        for key, value in build_args.items()
+    ]
+    _block(header='BUILD ARGS', content='\n'.join(db_info))
+
+
+@buildpack.command("download")
+@click.option('--name', '-n', type=str, required=True, help="Build pack name")
+def buildpack_download(name):
+    """Set application's build dependencies."""
+
+    buildpack_info = _parse_buildpack_name(name=name)
+    if not buildpack_info:
+        return
+
+    out, err = run('gsutil', 'cp', buildpack_info['dockerfile_url'], str(Path(__file__).parent))
+
+    if 'completed' in err:
+        _success(f"Successfully downloaded {name}'s files.")
+    else:
+        _err(err)
 
 
 @cli.group()
@@ -285,6 +347,20 @@ def _parse_app_name(application):
     return apps[0]
 
 
+def _parse_buildpack_name(name):
+    buildpacks = FlamingoAPI.get_buildpack(name=name)
+
+    if len(buildpacks) > 1:
+        _err("Duplicated build packs found!!")
+        return
+
+    if len(buildpacks) == 0:
+        _warn(f"No buildpack named {name} found.")
+        return
+
+    return buildpacks[0]
+
+
 def _bold(txt):
     return click.style(txt, bold=True)
 
@@ -370,6 +446,15 @@ class FlamingoAPI:
             'email': email,
             'endpoint': cls.API,
         }
+
+    @classmethod
+    def list_buildpacks(cls):
+        return cls._list(endpoint='/build-packs')
+
+    @classmethod
+    def get_buildpack(cls, name):
+        buildpacks = list(cls._list(endpoint='/build-packs', name=name))
+        return buildpacks
 
     @classmethod
     def _headers(cls, url):
