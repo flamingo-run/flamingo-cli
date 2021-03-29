@@ -67,7 +67,7 @@ def app_info(application):
         ('REGION', app_info['region']),
         ('ENDPOINT', app_info['endpoint']),
         ('REPOSITORY', app_info['repository']['name']),
-        ('ACCESS', "Public" if app_info['build']['is_authenticated'] else "Private"),
+        ('ACCESS', "Private" if app_info['build']['is_authenticated'] else "Public"),
     ])
 
     build = app_info['build']
