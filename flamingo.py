@@ -75,6 +75,7 @@ def app_info(application):
         f"Build Pack: {build['build_pack_name']}",
         f"Deploy Branch: {build['deploy_branch']}",
         f"Deploy Tag: {build['deploy_tag']}",
+        f"OS Dependencies: {' '.join(build['os_dependencies'])}",
         f"RAM: {build['memory']}MB",
         f"CPU: {build['cpu']} cores",
         f"Auto-scale: {build['min_instances']} - {build['max_instances']}",
