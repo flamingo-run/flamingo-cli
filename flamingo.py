@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from pathlib import Path
 
 import click
 import requests
@@ -126,7 +125,7 @@ def buildpack():
     """Manages build packs"""
 
 
-@app.command("list")
+@buildpack.command("list")
 def buildpack_list():
     """List buildpacks."""
     bp_info = {}
@@ -138,7 +137,7 @@ def buildpack_list():
     click.echo(tabulate(sorted_info, headers=["Name", "Runtime", "Target"], tablefmt=TABLE_STYLE))
 
 
-@app.command("info")
+@buildpack.command("info")
 @click.option('--name', '-n', type=str, required=True, help="Build pack name")
 def buildpack_info(name):
     """Detail buildpack."""
@@ -174,10 +173,11 @@ def buildpack_download(name):
     if not buildpack_info:
         return
 
-    out, err = run('gsutil', 'cp', buildpack_info['dockerfile_url'], str(Path(__file__).parent))
+    destination = os.getcwd()
+    out, err = run('gsutil', 'cp', buildpack_info['dockerfile_url'], destination)
 
     if 'completed' in err:
-        _success(f"Successfully downloaded {name}'s files.")
+        _success(f"Successfully downloaded {name}'s files to {destination}")
     else:
         _err(err)
 
