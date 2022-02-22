@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "flamingo-cli"
-version = "1.3.1"
+version = "1.3.2"
 description = "Flamingo Command Line Interface"
 authors = ["Joao Daher <joao@daher.dev>"]
 packages = [
