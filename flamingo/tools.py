@@ -9,9 +9,9 @@ TABLE_STYLE = "fancy_grid"
 
 
 def run(*commands):
-    sp = subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sp.communicate()
-    return out.decode(), err.decode()
+    with subprocess.Popen(commands, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as sp:
+        out, err = sp.communicate()
+        return out.decode(), err.decode()
 
 
 def _bold(txt):
