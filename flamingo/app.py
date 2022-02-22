@@ -14,12 +14,12 @@ def app():
 @app.command("list")
 def app_list():
     """List applications."""
-    app_info = {}
-    for app in FlamingoAPI.list_apps():
-        name, env, endpoint = app['name'], app['environment']['name'], app['endpoint']
-        app_info[f"{name}-{env}"] = [name, env, endpoint]
+    _app_info = {}
+    for _app in FlamingoAPI.list_apps():
+        name, env, endpoint = _app['name'], _app['environment']['name'], _app['endpoint']
+        _app_info[f"{name}-{env}"] = [name, env, endpoint]
 
-    sorted_info = dict(sorted(app_info.items())).values()
+    sorted_info = dict(sorted(_app_info.items())).values()
     click.echo(tabulate(sorted_info, headers=["Name", "Environment", "Endpoint"], tablefmt=TABLE_STYLE))
 
 
@@ -28,20 +28,20 @@ def app_list():
 def app_info(application):
     """Detail application."""
 
-    app_info = _parse_app_name(application=application)
-    if not app_info:
+    _app_info = _parse_app_name(application=application)
+    if not _app_info:
         return
 
     _describe([
-        ('NAME', app_info['name']),
-        ('ENVIRONMENT', app_info['environment']['name']),
-        ('REGION', app_info['region']),
-        ('ENDPOINT', app_info['endpoint']),
-        ('REPOSITORY', app_info['repository']['name']),
-        ('ACCESS', "Private" if app_info['build']['is_authenticated'] else "Public"),
+        ('NAME', _app_info['name']),
+        ('ENVIRONMENT', _app_info['environment']['name']),
+        ('REGION', _app_info['region']),
+        ('ENDPOINT', _app_info['endpoint']),
+        ('REPOSITORY', _app_info['repository']['name']),
+        ('ACCESS', "Private" if _app_info['build']['is_authenticated'] else "Public"),
     ])
 
-    build = app_info['build']
+    build = _app_info['build']
     build_info = [
         f"Build Pack: {build['build_pack_name']}",
         f"Deploy Branch: {build['deploy_branch']}",
@@ -55,7 +55,7 @@ def app_info(application):
     ]
     _block(header='BUILD', content='\n'.join(build_info))
 
-    database = app_info['database']
+    database = _app_info['database']
     db_info = [
         f"Instance: {database['instance']}",
         f"Name: {database['name']}",
@@ -67,7 +67,7 @@ def app_info(application):
     ]
     _block(header='DATABASE', content='\n'.join(db_info))
 
-    bucket = app_info['bucket']
+    bucket = _app_info['bucket']
     bucket_info = [
         f"Name: {bucket['name']}",
         f"Region: {bucket['region']}",
@@ -82,10 +82,10 @@ def app_info(application):
 def app_apply(application):
     """Apply application's configuration."""
 
-    app_info = _parse_app_name(application=application)
-    if not app_info:
+    _app_info = _parse_app_name(application=application)
+    if not _app_info:
         return
 
-    data = FlamingoAPI.apply_app(app_id=app_info['id'])
-    _success(f"Successfully applied {app_info['name']}-{app_info['environment']['name']}'s configuration.")
+    data = FlamingoAPI.apply_app(app_id=_app_info['id'])
+    _success(f"Successfully applied {_app_info['name']}-{_app_info['environment']['name']}'s configuration.")
     click.echo(f"Cloud Build trigger {data['trigger_id']} has been updated")

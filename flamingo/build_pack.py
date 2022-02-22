@@ -57,12 +57,12 @@ def buildpack_info(name):
 def buildpack_download(name):
     """Set application's build dependencies."""
 
-    buildpack_info = _parse_buildpack_name(name=name)
-    if not buildpack_info:
+    _buildpack_info = _parse_buildpack_name(name=name)
+    if not _buildpack_info:
         return
 
     destination = os.getcwd()
-    out, err = run('gsutil', 'cp', buildpack_info['dockerfile_url'], destination)
+    _, err = run('gsutil', 'cp', _buildpack_info['dockerfile_url'], destination)
 
     if 'completed' in err:
         _success(f"Successfully downloaded {name}'s files to {destination}")

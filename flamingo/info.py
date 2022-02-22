@@ -7,8 +7,8 @@ from flamingo.tools import _describe
 def info():
     """Information about the CLI."""
 
-    info = FlamingoAPI.info()
+    _info = FlamingoAPI.info()
     _describe([
-        ('EMAIL', info['email']),
-        ('ENDPOINT', info['endpoint']),
+        ('EMAIL', _info['email']),
+        ('ENDPOINT', _info['endpoint']),
     ])

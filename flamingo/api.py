@@ -49,7 +49,7 @@ class FlamingoAPI:
 
     @classmethod
     def info(cls):
-        out, err = run('gcloud', 'auth', 'list')
+        out, _ = run('gcloud', 'auth', 'list')
 
         email = None
         for row in out.splitlines():
@@ -124,17 +124,17 @@ def _parse_app_name(application):
         name, environment = application.rsplit('-', 1)
     except ValueError:
         _err(f"Application name must be in the format <name>-<env>, not {application}")
-        return
+        return None
 
     apps = FlamingoAPI.get_app(name=name, environment=environment)
 
     if len(apps) > 1:
         _err("Duplicated apps found!!")
-        return
+        return None
 
     if len(apps) == 0:
         _warn(f"No app named {name} in the environment {environment}")
-        return
+        return None
 
     return apps[0]
 
@@ -144,10 +144,10 @@ def _parse_buildpack_name(name):
 
     if len(buildpacks) > 1:
         _err("Duplicated build packs found!!")
-        return
+        return None
 
     if len(buildpacks) == 0:
         _warn(f"No buildpack named {name} found.")
-        return
+        return None
 
     return buildpacks[0]
